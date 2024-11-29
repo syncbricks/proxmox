@@ -4,7 +4,6 @@ source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/m
 # Author: SyncBricks
 # License: MIT
 # https://syncbricks.com
-
 echo "################################################################################"
 echo " ________       ___    ___ ________   ________  ________  ________  ___  ________ "
 echo "|\   ____\     |\  \  /  /|\   ___  \|\   ____\|\   __  \|\   __  \|\  \|\   ____\\"
@@ -15,7 +14,6 @@ echo "    ____\_\  \ __/  / /      \ \__\\ \__\ \_______\ \_______\ \__\\ _\\ \_
 echo "   |\_________\\___/ /        \|__| \|__|\|_______|\|_______|\|__|\|__|\|__|\_________\\"
 echo "   \|_________\|___|/                                                          \|_______|"
 echo "################################################################################"
-
 echo -e "Loading..."
 APP="ERPNext"
 var_disk="8"
@@ -26,7 +24,6 @@ var_version="20.04"
 variables
 color
 catch_errors
-
 function default_settings() {
   CT_TYPE="1"
   PW=""
