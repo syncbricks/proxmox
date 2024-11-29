@@ -24,6 +24,7 @@ var_version="20.04"
 variables
 color
 catch_errors
+
 function default_settings() {
   CT_TYPE="1"
   PW=""
@@ -91,4 +92,47 @@ function create_erpnext_container() {
   # Create LXC Container with ERPNext
   echo "Creating container ID: $CT_ID"
   echo "Using disk size: ${DISK_SIZE}GB"
-  echo "Using 
+  echo "Using ${CPU} CPU cores"
+  echo "Using ${MEMORY} MB of RAM"
+  echo "Network interface: $NETWORK"
+  echo "Storage location: $STORAGE"
+  
+  # Create LXC container
+  pct create $CT_ID /var/lib/vz/template/cache/${var_os}-${var_version}-amd64.tar.gz \
+    -hostname "$HN" \
+    -cores "$CPU" \
+    -memory "$MEMORY" \
+    -disk "$DISK_SIZE" \
+    -net0 name=eth0,bridge=$NETWORK,ip=$NET,gw=$GATE \
+    -rootfs $STORAGE:8 \
+    -unprivileged 1 \
+    -start 1
+
+  # Start the container
+  echo "Starting ERPNext LXC container..."
+  pct start $CT_ID
+
+  # Installing ERPNext dependencies inside the container
+  echo "Installing ERPNext dependencies..."
+  pct exec $CT_ID -- bash -c "apt update && apt upgrade -y"
+  pct exec $CT_ID -- bash -c "apt install -y python3-pip python3-dev redis-server libmysqlclient-dev"
+  pct exec $CT_ID -- bash -c "pip3 install --upgrade setuptools"
+  pct exec $CT_ID -- bash -c "pip3 install frappe-bench"
+  
+  # Install ERPNext
+  echo "Installing ERPNext..."
+  pct exec $CT_ID -- bash -c "bench init --frappe-branch version-14 frappe-bench"
+  pct exec $CT_ID -- bash -c "cd frappe-bench && bench new-site erpnext.local"
+  pct exec $CT_ID -- bash -c "cd frappe-bench && bench --site erpnext.local install-app erpnext"
+  
+  # Starting ERPNext services
+  echo "Starting ERPNext services..."
+  pct exec $CT_ID -- bash -c "cd frappe-bench && bench start"
+
+  # Displaying success message
+  echo "ERPNext container created and running at container ID: $CT_ID"
+}
+
+# Main execution starts here
+default_settings
+create_erpnext_container
