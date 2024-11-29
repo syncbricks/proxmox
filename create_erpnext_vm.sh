@@ -69,3 +69,7 @@ start_container() {
     exit 1
   fi
 }
+# Run the functions
+create_lxc_container
+start_container
+
